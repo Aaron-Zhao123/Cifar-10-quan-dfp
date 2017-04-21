@@ -53,7 +53,7 @@ def initialize_variables(exist, parent_dir, q_bits , pretrain):
     NUM_CHANNELS = 3
     IMAGE_SIZE = 32
     NUM_CLASSES = 10
-    file_name = parent_dir + 'base.pkl'
+    file_name = parent_dir + 'weights/'+ 'base.pkl'
     if (exist == 1):
         with open(file_name, 'rb') as f:
             (weights_val, biases_val) = pickle.load(f)
