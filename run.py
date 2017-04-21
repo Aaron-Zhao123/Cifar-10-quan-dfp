@@ -1,5 +1,5 @@
 import os
-import dft_training
+import dfp_training
 def dump_to_txt_files(pt_acc_list, acc_list):
     with open("ptacc_cifar_quantize_han.txt", "w") as f:
         for item in pt_acc_list:
