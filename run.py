@@ -27,7 +27,7 @@ for q_width in quantisation_bits:
         ('-base_model', base_model),
         ('-dynamic_range', dynamic_range)
         ]
-    pre_train_acc = fixed_point_training.main(param)
+    pre_train_acc = dfp_training.main(param)
     param = [
         ('-t', 1),
         ('-q_bits',q_width),
