@@ -46,7 +46,7 @@ for q_width in quantisation_bits:
         ('-parent_dir', parent_dir),
         ('-base_model', base_model)
         ]
-    train_acc = fixed_point_training.main(param)
+    train_acc = dfp_training.main(param)
     pt_acc_list.append(pre_train_acc)
     acc_list.append(train_acc)
     print(pt_acc_list)
