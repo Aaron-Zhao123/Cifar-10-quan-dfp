@@ -53,14 +53,25 @@ def initialize_variables(exist, parent_dir, q_bits , pretrain):
     NUM_CHANNELS = 3
     IMAGE_SIZE = 32
     NUM_CLASSES = 10
+    file_name = parent_dir + 'base.pkl'
     if (exist == 1):
-        if (pretrain == 1):
-            with open(parent_dir + 'weights/'+'weightspt'+str(q_bits)+'.pkl','rb') as f:
-                weights_orgs, biases_orgs, cluster_index,centroids = pickle.load(f)
-        else:
-            with open(parent_dir + 'weights/'+'weights'+str(q_bits)+'.pkl','rb') as f:
-                weights_orgs, biases_orgs, cluster_index,centroids = pickle.load(f)
-    return (weights_orgs, biases_orgs)
+        with open(file_name, 'rb') as f:
+            (weights_val, biases_val) = pickle.load(f)
+        weights = {
+            'cov1': tf.Variable(weights_val['cov1']),
+            'cov2': tf.Variable(weights_val['cov2']),
+            'fc1': tf.Variable(weights_val['fc1']),
+            'fc2': tf.Variable(weights_val['fc2']),
+            'fc3': tf.Variable(weights_val['fc3'])
+        }
+        biases = {
+            'cov1': tf.Variable(biases_val['cov1']),
+            'cov2': tf.Variable(biases_val['cov2']),
+            'fc1': tf.Variable(biases_val['fc1']),
+            'fc2': tf.Variable(biases_val['fc2']),
+            'fc3': tf.Variable(biases_val['fc3'])
+        }
+    return (weights, biases)
 
 def initialize_weights_mask(first_time_training, mask_dir):
     NUM_CHANNELS = 3
@@ -462,6 +473,16 @@ def main(argv = None):
             print('pre train pruning info')
             prune_info(weights, 0)
             print(78*'-')
+            print('start save these pre trained weights')
+            keys = ['cov1','cov2','fc1','fc2','fc3']
+            weights_save = {}
+            biases_save = {}
+            for key in keys:
+                weights_save[key] = weights[key].eval()
+                biases_save[key] = biases[key].eval()
+            with open(parent_dir + 'weights/'+ 'weights'+str(q_bits)+'.pkl','wb') as f:
+                pickle.dump((weights_save, biases_save),f)
+
             start = time.time()
             if TRAIN == 1:
                 for i in range(0,10000):
@@ -499,6 +520,14 @@ def main(argv = None):
 
                             print('test accuracy is {}'.format(test_acc))
                             if (test_acc > 0.823):
+                                keys = ['cov1','cov2','fc1','fc2','fc3']
+                                weights_save = {}
+                                biases_save = {}
+                                for key in keys:
+                                    weights_save[key] = weights[key].eval()
+                                    biases_save[key] = biases[key].eval()
+                                with open(parent_dir + 'weights/'+ 'weights'+str(q_bits)+'.pkl','wb') as f:
+                                    pickle.dump((weights_save, biases_save),f)
                                 print('Exiting the training, test accuracy is {}'.format(test_acc))
                                 break
                     _ = sess.run(train_step, feed_dict = {
@@ -508,13 +537,12 @@ def main(argv = None):
             if (TRAIN == 1):
                 keys = ['cov1','cov2','fc1','fc2','fc3']
                 weights_save = {}
-                centroids_save = {}
+                biases_save = {}
                 for key in keys:
-                    centroids_save[key] = centroids_var[key].eval()
                     weights_save[key] = weights[key].eval()
-
+                    biases_save[key] = biases[key].eval()
                 with open(parent_dir + 'weights/'+ 'weights'+str(q_bits)+'.pkl','wb') as f:
-                    pickle.dump((weights_save, biases_orgs, cluster_index,centroids_save),f)
+                    pickle.dump((weights_save, biases_save),f)
 
 
             NUMBER_OF_BATCH = 10000 / BATCH_SIZE
