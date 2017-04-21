@@ -36,7 +36,7 @@ for q_width in quantisation_bits:
         ('-base_model', base_model),
         ('-dynamic_range', dynamic_range)
         ]
-    _ = dft_training.main(param)
+    _ = dfp_training.main(param)
 
     param = [
         ('-t', 0),
