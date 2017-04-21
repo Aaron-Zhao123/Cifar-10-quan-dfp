@@ -44,7 +44,8 @@ for q_width in quantisation_bits:
         ('-q_bits',q_width),
         ('-pretrain',0),
         ('-parent_dir', parent_dir),
-        ('-base_model', base_model)
+        ('-base_model', base_model),
+        ('-dynamic_range', dynamic_range)
         ]
     train_acc = dfp_training.main(param)
     pt_acc_list.append(pre_train_acc)
