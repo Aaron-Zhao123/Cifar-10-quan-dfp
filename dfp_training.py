@@ -527,7 +527,7 @@ def main(argv = None):
                                 threshold = 0.8
                             if (q_bits == 8):
                                 threshold = 0.82
-                            if (q_bits == 16):
+                            if (q_bits >= 16):
                                 threshold = 0.82
 
                             print('test accuracy is {}'.format(test_acc))
