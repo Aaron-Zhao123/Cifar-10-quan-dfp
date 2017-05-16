@@ -344,6 +344,8 @@ def compute_weights_nbits(weights, biases, frac_bits, dynamic_range):
                 b_val = biases[key] * b_pos
                 weights_new[key] = tf.floordiv( w_val, interval) * interval
                 biases_new[key] = tf.floordiv( b_val, interval) * interval
+                weights_new[key] = tf.clip_by_value(weights_new[key], -1., 1.)
+                biases_new[key] = tf.clip_by_value(biases_new[key], -1., 1.)
             else:
                 interval_dr = interval / (float) (i*2)
                 w_pos = tf.logical_and((tf.abs(weights[key]) < (interval_dr*2)), (tf.abs(weights[key]) >= interval_dr))
