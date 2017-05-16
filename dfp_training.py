@@ -428,16 +428,17 @@ def main(argv = None):
 
         keep_prob = tf.placeholder(tf.float32)
         images = pre_process(x, TRAIN_OR_TEST)
-        # images = pre_process(x, 1)
+        test_images = pre_process(x, 0)
+
         pred = cov_network(images, weights, biases, keep_prob)
-        # print(pred)
+        test_pred = cov_network(test_images, weights, biases, keep_prob)
+
         cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits = pred, labels = y)
         loss_value = tf.reduce_mean(cross_entropy)
 
-        correct_prediction = tf.equal(tf.argmax(pred,1), tf.argmax(y,1))
+        correct_prediction = tf.equal(tf.argmax(test_pred,1), tf.argmax(y,1))
         accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
-        saver = tf.train.Saver()
 
 
         global_step = tf.contrib.framework.get_or_create_global_step()
@@ -462,7 +463,7 @@ def main(argv = None):
 
         init = tf.global_variables_initializer()
         accuracy_list = np.zeros(30)
-        accuracy_list = np.zeros(5)
+        accuracy_list = np.zeros(10)
         # Launch the graph
         print('Graph launching ..')
         with tf.Session() as sess:
@@ -488,7 +489,7 @@ def main(argv = None):
 
             start = time.time()
             if TRAIN == 1:
-                for i in range(0,30000):
+                for i in range(0,50000):
                     (batch_x, batch_y) = t_data.feed_next_batch(BATCH_SIZE)
                     train_acc, cross_en = sess.run([accuracy, loss_value], feed_dict = {
                                     x: batch_x,
@@ -505,7 +506,7 @@ def main(argv = None):
                             cross_en
                         ))
                         # accuracy_list = np.concatenate((np.array([train_acc]),accuracy_list[0:29]))
-                        accuracy_list = np.concatenate((np.array([train_acc]),accuracy_list[0:4]))
+                        accuracy_list = np.concatenate((np.array([train_acc]),accuracy_list[0:9]))
                         if (np.mean(accuracy_list) > 0.8):
                             print("training accuracy is large, show the list: {}".format(accuracy_list))
                             NUMBER_OF_BATCH = 10000 / BATCH_SIZE
@@ -519,10 +520,18 @@ def main(argv = None):
                                 t_acc.append(test_acc)
                             print("test accuracy is {}".format(t_acc))
                             test_acc = np.mean(t_acc)
-                            accuracy_list = np.zeros(5)
+                            accuracy_list = np.zeros(10)
+                            if (q_bits == 2):
+                                threshold = 0.6
+                            if (q_bits == 4):
+                                threshold = 0.8
+                            if (q_bits == 8):
+                                threshold = 0.82
+                            if (q_bits == 16):
+                                threshold = 0.82
 
                             print('test accuracy is {}'.format(test_acc))
-                            if (test_acc > 0.823):
+                            if (test_acc > threshold):
                                 keys = ['cov1','cov2','fc1','fc2','fc3']
                                 weights_save = {}
                                 biases_save = {}
