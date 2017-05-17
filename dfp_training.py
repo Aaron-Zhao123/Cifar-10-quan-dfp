@@ -442,30 +442,32 @@ def main(argv = None):
         accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 
-
-        global_step = tf.contrib.framework.get_or_create_global_step()
-
-        num_batches_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / BATCH_SIZE
-        decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
+        #
+        # global_step = tf.contrib.framework.get_or_create_global_step()
+        #
+        # num_batches_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / BATCH_SIZE
+        # decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
 
         # Decay the learning rate exponentially based on the number of steps.
-        lr = tf.train.exponential_decay(INITIAL_LEARNING_RATE,
-                                      global_step,
-                                      decay_steps,
-                                      LEARNING_RATE_DECAY_FACTOR,
-                                      staircase=True)
+        # lr = tf.train.exponential_decay(INITIAL_LEARNING_RATE,
+        #                               global_step,
+        #                               decay_steps,
+        #                               LEARNING_RATE_DECAY_FACTOR,
+        #                               staircase=True)
 
-        opt = tf.train.GradientDescentOptimizer(lr)
-        grads = opt.compute_gradients(loss_value)
-        org_grads = [(ClipIfNotNone(grad), var) for grad, var in grads]
-        new_grads = mask_gradients(weights, org_grads, weights_mask, biases, biases_mask)
+        # opt = tf.train.GradientDescentOptimizer(lr)
+        # grads = opt.compute_gradients(loss_value)
+        # org_grads = [(ClipIfNotNone(grad), var) for grad, var in grads]
+        # new_grads = mask_gradients(weights, org_grads, weights_mask, biases, biases_mask)
         # Apply gradients.
-        train_step = opt.apply_gradients(new_grads, global_step=global_step)
+        # train_step = opt.apply_gradients(new_grads, global_step=global_step)
+        train_step = tf.train.AdamOptimizer(1e-4).minimize(loss_value)
 
 
         init = tf.global_variables_initializer()
         accuracy_list = np.zeros(30)
         accuracy_list = np.zeros(10)
+        best_test_acc = 0
         # Launch the graph
         print('Graph launching ..')
         with tf.Session() as sess:
@@ -491,7 +493,7 @@ def main(argv = None):
 
             start = time.time()
             if TRAIN == 1:
-                for i in range(0,50000):
+                for i in range(0,60000):
                     (batch_x, batch_y) = t_data.feed_next_batch(BATCH_SIZE)
                     train_acc, cross_en = sess.run([accuracy, loss_value], feed_dict = {
                                     x: batch_x,
@@ -526,6 +528,8 @@ def main(argv = None):
                             if (q_bits == 2):
                                 threshold = 0.6
                             if (q_bits == 1):
+                                threshold = 0.5
+                            if (q_bits == 3):
                                 threshold = 0.8
                             if (q_bits == 5):
                                 threshold = 0.82
@@ -533,7 +537,8 @@ def main(argv = None):
                                 threshold = 0.82
 
                             print('test accuracy is {}'.format(test_acc))
-                            if (test_acc > threshold):
+                            if (test_acc >= threshold or test_acc > best_test_acc):
+                                best_test_acc = test_acc
                                 keys = ['cov1','cov2','fc1','fc2','fc3']
                                 weights_save = {}
                                 biases_save = {}
@@ -542,35 +547,41 @@ def main(argv = None):
                                     biases_save[key] = biases[key].eval()
                                 with open(parent_dir + 'weights/'+ 'weights'+str(q_bits)+'.pkl','wb') as f:
                                     pickle.dump((weights_save, biases_save),f)
-                                print('Exiting the training, test accuracy is {}'.format(test_acc))
-                                break
+
+                                if (best_test_acc >= threshold):
+                                    print('Exiting the training, test accuracy is {}'.format(test_acc))
+                                    return best_test_acc
+
                     _ = sess.run(train_step, feed_dict = {
                                     x: batch_x,
                                     y: batch_y,
                                     keep_prob: dropout})
             if (TRAIN == 1):
-                keys = ['cov1','cov2','fc1','fc2','fc3']
-                weights_save = {}
-                biases_save = {}
-                for key in keys:
-                    weights_save[key] = weights[key].eval()
-                    biases_save[key] = biases[key].eval()
-                with open(parent_dir + 'weights/'+ 'weights'+str(q_bits)+'.pkl','wb') as f:
-                    pickle.dump((weights_save, biases_save),f)
+                if (best_test_acc == 0):
+                    keys = ['cov1','cov2','fc1','fc2','fc3']
+                    weights_save = {}
+                    biases_save = {}
+                    for key in keys:
+                        weights_save[key] = weights[key].eval()
+                        biases_save[key] = biases[key].eval()
+                    with open(parent_dir + 'weights/'+ 'weights'+str(q_bits)+'.pkl','wb') as f:
+                        pickle.dump((weights_save, biases_save),f)
 
-
-            NUMBER_OF_BATCH = 10000 / BATCH_SIZE
-            t_acc = []
-            for i in range(0,NUMBER_OF_BATCH):
-                (batch_x, batch_y) = test_data.feed_next_batch(BATCH_SIZE)
-                test_acc = sess.run(accuracy, feed_dict = {
-                                        x: batch_x,
-                                        y: batch_y,
-                                        keep_prob: 1.0})
-                t_acc.append(test_acc)
-            print("test accuracy is {}".format(t_acc))
-                # save_pkl_model(weights, biases, model_name)
-        return np.mean(t_acc)
+            if (best_test_acc == 0):
+                NUMBER_OF_BATCH = 10000 / BATCH_SIZE
+                t_acc = []
+                for i in range(0,NUMBER_OF_BATCH):
+                    (batch_x, batch_y) = test_data.feed_next_batch(BATCH_SIZE)
+                    test_acc = sess.run(accuracy, feed_dict = {
+                                            x: batch_x,
+                                            y: batch_y,
+                                            keep_prob: 1.0})
+                    t_acc.append(test_acc)
+                print("test accuracy is {}".format(t_acc))
+                    # save_pkl_model(weights, biases, model_name)
+                return np.mean(t_acc)
+            else:
+                return best_test_acc
     except Usage, err:
         print >> sys.stderr, err.msg
         print >> sys.stderr, "for help use --help"
