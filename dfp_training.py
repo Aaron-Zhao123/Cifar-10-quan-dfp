@@ -100,6 +100,9 @@ def initialize_weights_mask(first_time_training, mask_dir):
     else:
         with open(mask_dir,'rb') as f:
             (weights_mask, biases_mask) = pickle.load(f)
+    print('weights mask test')
+    prune_info(weights_mask,1)
+    sys.exit()
     return (weights_mask, biases_mask)
 
 def prune_info(weights, counting):
@@ -118,7 +121,7 @@ def prune_info(weights, counting):
         print('fc3 has prunned {} percent of its weights'.format((total-non_zeros)*100/total))
         print('some numbers: non zeros:{}, total:{}'.format(non_zeros, total))
     if (counting == 1):
-        (non_zeros, total) = calculate_non_zero_weights(weights['fc1'].eval())
+        (non_zeros, total) = calculate_non_zero_weights(weights['fc1'])
         print('take fc1 as example, {} nonzeros, in total {} weights'.format(non_zeros, total))
 def plot_weights(weights,pruning_info):
         keys = ['cov1','cov2','fc1', 'fc2','fc2']
@@ -437,7 +440,7 @@ def main(argv = None):
         keys = ['cov1', 'cov2', 'fc1', 'fc2', 'fc3']
         for key in keys:
             weights[key] = weights[key] * weights_mask[key]
-            
+
         pred = cov_network(images, weights, biases, keep_prob)
         test_pred = cov_network(test_images, weights, biases, keep_prob)
 
