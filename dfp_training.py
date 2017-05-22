@@ -80,7 +80,6 @@ def initialize_weights_mask(first_time_training, mask_dir):
     print("mask dir is {}".format(mask_dir))
     NUM_CHANNELS = 3
     NUM_CLASSES = 10
-    first_time_training = 1 # temp solution
     if (first_time_training == 1):
         print('setting initial mask value')
         weights_mask = {
