@@ -17,7 +17,7 @@ base_model = 'base.pkl'
 base_model = 'base_prune.pkl'
 # quantisation_bits = [2, 4, 8, 16]
 # 1 bit sign, 2 bits range
-quantisation_bits = [4, 6, 8, 16, 32]
+quantisation_bits = [6, 8, 16, 32]
 quantisation_bits = [item - 3 for item in quantisation_bits]
 pcov = [0,0]
 dynamic_range = 4
