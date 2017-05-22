@@ -101,7 +101,7 @@ def initialize_weights_mask(first_time_training, mask_dir):
             (weights_mask, biases_mask) = pickle.load(f)
     print('weights mask test')
     prune_info(weights_mask,1)
-    sys.exit()
+    # sys.exit()
     return (weights_mask, biases_mask)
 
 def prune_info(weights, counting):
