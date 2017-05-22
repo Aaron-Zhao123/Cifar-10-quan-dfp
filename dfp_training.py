@@ -77,6 +77,7 @@ def initialize_variables(exist, parent_dir, q_bits , pretrain, base_model):
     return (weights, biases)
 
 def initialize_weights_mask(first_time_training, mask_dir):
+    print("mask dir is {}".format(mask_dir))
     NUM_CHANNELS = 3
     NUM_CLASSES = 10
     first_time_training = 1 # temp solution
@@ -475,9 +476,9 @@ def main(argv = None):
             sess.run(init)
 
             keys = ['cov1', 'cov2', 'fc1', 'fc2', 'fc3']
-            # for key in keys:
-            #     sess.run(weights[key].assign(weights[key].eval()*weights_mask[key]))
-                # sess.run(biases[key].assign(biases[key].eval()*biases_mask[key]))
+            for key in keys:
+                sess.run(weights[key].assign(weights[key].eval()*weights_mask[key]))
+                sess.run(biases[key].assign(biases[key].eval()*biases_mask[key]))
 
             print('pre train pruning info')
             prune_info(weights, 0)
