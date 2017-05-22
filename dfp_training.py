@@ -56,7 +56,7 @@ def initialize_variables(exist, parent_dir, q_bits , pretrain, base_model):
     if (pretrain):
         file_name = parent_dir + base_model
     else:
-        file_name = parent_dir + base_model 
+        file_name = parent_dir + base_model
     if (exist == 1):
         with open(file_name, 'rb') as f:
             (weights_val, biases_val) = pickle.load(f)
@@ -417,7 +417,8 @@ def main(argv = None):
 
         training_data_list = []
 
-        weights, biases = initialize_variables(PREV_MODEL_EXIST, parent_dir, q_bits, pretrain, base_model)
+        weights, biases = initialize_variables(PREV_MODEL_EXIST, parent_dir, q_bits, pretrain,
+            model_dir + 'weights/' + base_model)
         weights, biases = compute_weights_nbits(weights, biases, q_bits, dynamic_range)
 
         x = tf.placeholder(tf.float32, [None, 32, 32, 3])
