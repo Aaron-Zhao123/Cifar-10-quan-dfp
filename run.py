@@ -14,6 +14,7 @@ count = 0
 retrain = 0
 parent_dir = './'
 base_model = 'base.pkl'
+base_model = 'base_prune.pkl'
 # quantisation_bits = [2, 4, 8, 16]
 # 1 bit sign, 2 bits range
 quantisation_bits = [4, 6, 8, 16, 32]

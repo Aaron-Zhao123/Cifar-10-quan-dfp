@@ -49,14 +49,14 @@ def _variable_on_cpu(name, shape, initializer):
         var = tf.get_variable(name, shape, initializer=initializer, dtype=dtype)
     return var
 
-def initialize_variables(exist, parent_dir, q_bits , pretrain):
+def initialize_variables(exist, parent_dir, q_bits , pretrain, base_model):
     NUM_CHANNELS = 3
     IMAGE_SIZE = 32
     NUM_CLASSES = 10
     if (pretrain):
-        file_name = parent_dir + 'weights/'+ 'base.pkl'
+        file_name = parent_dir + base_model
     else:
-        file_name = parent_dir + 'weights/'+ 'weights' + str(q_bits) +'.pkl'
+        file_name = parent_dir + base_model 
     if (exist == 1):
         with open(file_name, 'rb') as f:
             (weights_val, biases_val) = pickle.load(f)
@@ -403,7 +403,7 @@ def main(argv = None):
         PREV_MODEL_EXIST = 1
 
 
-        (weights_mask,biases_mask)= initialize_weights_mask(0, mask_dir + 'masks/' + 'base.pkl' )
+        (weights_mask,biases_mask)= initialize_weights_mask(0, mask_dir + 'masks/' + base_model )
         cifar10.maybe_download_and_extract()
         class_names = cifar10.load_class_names()
 
@@ -417,7 +417,7 @@ def main(argv = None):
 
         training_data_list = []
 
-        weights, biases = initialize_variables(PREV_MODEL_EXIST, parent_dir, q_bits, pretrain)
+        weights, biases = initialize_variables(PREV_MODEL_EXIST, parent_dir, q_bits, pretrain, base_model)
         weights, biases = compute_weights_nbits(weights, biases, q_bits, dynamic_range)
 
         x = tf.placeholder(tf.float32, [None, 32, 32, 3])
