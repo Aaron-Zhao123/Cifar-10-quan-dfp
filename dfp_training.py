@@ -434,6 +434,10 @@ def main(argv = None):
         images = pre_process(x, TRAIN_OR_TEST)
         test_images = pre_process(x, 0)
 
+        keys = ['cov1', 'cov2', 'fc1', 'fc2', 'fc3']
+        for key in keys:
+            weights[key] = weights[key] * weights_mask[key]
+            
         pred = cov_network(images, weights, biases, keep_prob)
         test_pred = cov_network(test_images, weights, biases, keep_prob)
 
@@ -475,10 +479,7 @@ def main(argv = None):
         with tf.Session() as sess:
             sess.run(init)
 
-            keys = ['cov1', 'cov2', 'fc1', 'fc2', 'fc3']
-            for key in keys:
-                weights[key] = weights[key] * weights_mask[key]
-                biases[key] = biases[key] * biases_mask[key]
+
 
             print('pre train pruning info')
             prune_info(weights, 0)
