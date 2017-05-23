@@ -44,7 +44,7 @@ for q_width in quantisation_bits:
             ('-dynamic_range', dynamic_range),
             ('-read_only', True)
             ]
-        train_acc_ = dfp_training.main(param)
+        train_acc = dfp_training.main(param)
     else:
         param = [
             ('-t', 1),
