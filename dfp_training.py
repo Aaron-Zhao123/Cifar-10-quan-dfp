@@ -367,7 +367,7 @@ def main(argv = None):
     try:
         try:
             opts = argv
-            TRAIN = 1
+            TRAIN = 0
             pretrain = 0
             READ_ONLY = False
             for item in opts:
@@ -424,7 +424,7 @@ def main(argv = None):
         training_data_list = []
 
         if (READ_ONLY):
-            weights_file_name = model_dir + 'weights/' + 'weights' + str(q_bits) +'.pkl'
+            weights_file_name = model_dir + 'weights/' + 'weights_post_train' + str(q_bits) +'.pkl'
         else:
             weights_file_name = model_dir + 'weights/' + base_model
 
