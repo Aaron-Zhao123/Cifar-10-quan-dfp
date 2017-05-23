@@ -524,7 +524,7 @@ def main(argv = None):
                         ))
                         # accuracy_list = np.concatenate((np.array([train_acc]),accuracy_list[0:29]))
                         accuracy_list = np.concatenate((np.array([train_acc]),accuracy_list[0:9]))
-                        if (np.mean(accuracy_list) > 0.8 and train_acc >0.85):
+                        if ((np.mean(accuracy_list) > 0.8 and train_acc >0.83) or train_acc > 0.88):
                             print("training accuracy is large, show the list: {}".format(accuracy_list))
                             NUMBER_OF_BATCH = 10000 / BATCH_SIZE
                             t_acc = []
@@ -570,6 +570,8 @@ def main(argv = None):
                         biases_save[key] = biases[key].eval()
                     with open(parent_dir + 'weights/'+ 'weights_post_train'+str(q_bits)+'.pkl','wb') as f:
                         pickle.dump((weights_save, biases_save),f)
+                else:
+                    pass
 
             if (best_test_acc == 0):
                 NUMBER_OF_BATCH = 10000 / BATCH_SIZE
