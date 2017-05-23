@@ -369,6 +369,7 @@ def main(argv = None):
             opts = argv
             TRAIN = 1
             pretrain = 0
+            READ_ONLY = False
             for item in opts:
                 print (item)
                 opt = item[0]
@@ -385,6 +386,8 @@ def main(argv = None):
                     pretrain = val
                 if (opt == '-dynamic_range'):
                     dynamic_range = val
+                if (opt == '-read_only'):
+                    READ_ONLY = True
             print('pretrain is {}'.format(pretrain))
         except getopt.error, msg:
             raise Usage(msg)
@@ -420,8 +423,13 @@ def main(argv = None):
 
         training_data_list = []
 
+        if (READ_ONLY):
+            weights_file_name = model_dir + 'weights/' + 'weights' + str(q_bits) +'.pkl'
+        else:
+            weights_file_name = model_dir + 'weights/' + base_model
+
         weights, biases = initialize_variables(PREV_MODEL_EXIST, parent_dir, q_bits, pretrain,
-            model_dir + 'weights/' + base_model)
+            weights_file_name)
         weights, biases = compute_weights_nbits(weights, biases, q_bits, dynamic_range)
 
         x = tf.placeholder(tf.float32, [None, 32, 32, 3])
