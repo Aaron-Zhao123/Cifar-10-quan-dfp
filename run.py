@@ -15,7 +15,7 @@ retrain = 0
 parent_dir = './'
 base_model = 'base.pkl'
 base_model = 'base_prune.pkl'
-READ_EXISTING_FILES = True
+READ_EXISTING_FILES = False
 # quantisation_bits = [2, 4, 8, 16]
 # 1 bit sign, 2 bits range
 quantisation_bits = [6, 8, 16, 32]
@@ -54,7 +54,7 @@ for q_width in quantisation_bits:
             ('-base_model', base_model),
             ('-dynamic_range', dynamic_range)
             ]
-        train_acc_ = dfp_training.main(param)
+        train_acc = dfp_training.main(param)
 
 
 

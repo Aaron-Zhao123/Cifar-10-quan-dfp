@@ -524,7 +524,7 @@ def main(argv = None):
                         ))
                         # accuracy_list = np.concatenate((np.array([train_acc]),accuracy_list[0:29]))
                         accuracy_list = np.concatenate((np.array([train_acc]),accuracy_list[0:9]))
-                        if (np.mean(accuracy_list) > 0.8):
+                        if (np.mean(accuracy_list) > 0.8 and train_acc >0.85):
                             print("training accuracy is large, show the list: {}".format(accuracy_list))
                             NUMBER_OF_BATCH = 10000 / BATCH_SIZE
                             t_acc = []
@@ -538,16 +538,7 @@ def main(argv = None):
                             print("test accuracy is {}".format(t_acc))
                             test_acc = np.mean(t_acc)
                             accuracy_list = np.zeros(10)
-                            if (q_bits == 2):
-                                threshold = 0.6
-                            if (q_bits == 1):
-                                threshold = 0.5
-                            if (q_bits == 3):
-                                threshold = 0.8
-                            if (q_bits == 5):
-                                threshold = 0.82
-                            if (q_bits >= 13):
-                                threshold = 0.82
+                            threshold = 0.82
 
                             print('test accuracy is {}'.format(test_acc))
                             if (test_acc >= threshold or test_acc > best_test_acc):
@@ -558,7 +549,7 @@ def main(argv = None):
                                 for key in keys:
                                     weights_save[key] = weights[key].eval()
                                     biases_save[key] = biases[key].eval()
-                                with open(parent_dir + 'weights/'+ 'weights'+str(q_bits)+'.pkl','wb') as f:
+                                with open(parent_dir + 'weights/'+ 'weights_post_train'+str(q_bits)+'.pkl','wb') as f:
                                     pickle.dump((weights_save, biases_save),f)
 
                                 if (best_test_acc >= threshold):
@@ -577,7 +568,7 @@ def main(argv = None):
                     for key in keys:
                         weights_save[key] = weights[key].eval()
                         biases_save[key] = biases[key].eval()
-                    with open(parent_dir + 'weights/'+ 'weights'+str(q_bits)+'.pkl','wb') as f:
+                    with open(parent_dir + 'weights/'+ 'weights_post_train'+str(q_bits)+'.pkl','wb') as f:
                         pickle.dump((weights_save, biases_save),f)
 
             if (best_test_acc == 0):
